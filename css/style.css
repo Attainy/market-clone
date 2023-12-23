@@ -20,7 +20,7 @@ body {
     display: initial;
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 800px) {
     .media-info-msg {
         display: none;
     }
