@@ -1,0 +1,76 @@
+main.chatting-tap {
+    display: none;
+    padding-top: 100px;
+    padding: 20px;
+}
+
+.chat-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.left-icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.right-icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+/* 채팅 내용 */
+ul.chat-history {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    padding-top: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.chat-left {
+    margin-right: auto;
+    background-color: lightgray;
+    padding: 10px 15px;
+    border-radius: 10px;
+}
+
+.chat-right {
+    margin-left: auto;
+    background-color: tomato;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 10px;
+}
+
+/* 메세지 작성 */
+#submit-form {
+    position: fixed;
+    bottom: 100px;
+    width: 100vw;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eaeaea;
+    background-color: white;
+
+    display: flex;
+    justify-content: center;
+}
+
+#send-text {
+    padding: 5px 10px;
+    width: 70%;
+}
+
+#submit-btn {
+    cursor: pointer;
+}
