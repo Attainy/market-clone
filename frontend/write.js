@@ -4,7 +4,7 @@ const handleSubmitForm = async (event) => {
     event.preventDefault();
 
     const body = new FormData(form);
-    body.append('insertAt', new Date().getTime())
+    body.append('insertAt', new Date().getTime()) // 세계 시간으로 지정됨
 
     try {
         const res = await fetch('/items', {

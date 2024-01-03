@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, Form
+from fastapi import FastAPI, UploadFile, Form, Response
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
@@ -9,6 +9,18 @@ import sqlite3
 # sqlite3 세팅
 con = sqlite3.connect('carrot.db', check_same_thread=False)
 cur = con.cursor()
+
+cur.execute(f"""
+            CREATE TABLE IF NOT EXISTS items (
+            id INTEGER PRIMARY KEY,
+            title TEXT NOT NULL,
+            image BLOB,
+            price INTEGER NOT NULL,
+            description TEXT,
+            place TEXT NOT NULL,
+            insertAt INTEGER NOT NULL
+            );
+            """)
 
 class ChatStructure(BaseModel):
     id: str
@@ -53,6 +65,16 @@ async def get_items():
                        """).fetchall()
     return JSONResponse(jsonable_encoder(dict(row) for row in rows))
 
+@app.get('/images/{item_id}') # 이미지 id를 요청해서 받아오기
+async def get_image(item_id):
+    cur = con.cursor()
+    
+    # 아직 16진법으로 구성되어있음
+    image_bytes = cur.execute(f"""
+                                SELECT image FROM items WHERE id = {item_id}
+                              """).fetchone()[0] # 하나만 가져올 때 사용하는 문법
+    
+    return Response(content=bytes.fromhex(image_bytes), media_type = 'image/*') # 16진법 해석해서 content로 response
 
 # ================= chat ====================== #
 
@@ -76,4 +98,3 @@ def put_chat(communication:ChatStructure):
 
 # static 폴더 안에 있는 파일들
 app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-

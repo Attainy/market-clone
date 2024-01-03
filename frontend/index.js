@@ -22,22 +22,26 @@ const calcTime = (timestamp) => {
     if (hour > 0) return `${hour}시간 전`;
     else if (minutes > 0) return `${minutes}분 전`;
     else if (second >= 0) return `${second}초 전`;
-    else '방금 전';
+    else return '방금 전';
 }
 
 const renderData = (data) => {
     const main = document.querySelector("main.item-tap");
 
-    // 최신글이 위로 올라오도록 reverse 사용
-    data.reverse().forEach((obj) => {
+    // 최신글이 위로 올라오도록 reverse 사용 (시간순으로 배열되도록 sort로 수정하는게 더 좋음)
+    data.reverse().forEach(async (obj) => {
         const div = document.createElement("div");
         div.className = "item-list";
 
         const imgDiv = document.createElement("div");
         imgDiv.className = "item-list__img";
         
+        // 이미지 띄우기
         const img = document.createElement("img");
-        img.src = "./assets/img.svg";
+        const res = await fetch(`/images/${obj.id}`)
+        const blob = await res.blob(); // blob 타입으로 바꾸기
+        const url = URL.createObjectURL(blob);
+        img.src = url;
 
         const InfoDiv = document.createElement("div");
         InfoDiv.className = "item-list__info";
@@ -74,4 +78,3 @@ const fetchList = async () => {
 };
 
 fetchList();
-
