@@ -3,10 +3,13 @@ const form = document.getElementById("write-form");
 const handleSubmitForm = async (event) => {
     event.preventDefault();
 
+    const body = new FormData(form);
+    body.append('insertAt', new Date().getTime())
+
     try {
         const res = await fetch('/items', {
             method: 'POST',
-            body: new FormData(form)
+            body // body: body와 동일
         });
 
         const data = await res.json();

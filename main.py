@@ -1,4 +1,6 @@
 from fastapi import FastAPI, UploadFile, Form
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from typing import Annotated
@@ -28,16 +30,28 @@ async def create_item(image: UploadFile
                 , title: Annotated[str, Form()],
                 price: Annotated[int, Form()],
                 description: Annotated[str, Form()],
-                place: Annotated[str, Form()]):
+                place: Annotated[str, Form()],
+                insertAt: Annotated[int, Form()]
+                ):
     print(image, title, price, description, place)
     
     image_bytes = await image.read()
     cur.execute(f"""
-                INSERT INTO items(title, image, price, description, place)
-                VALUES ('{title}', '{image_bytes.hex()}', {price}, '{description}', '{place}')
+                INSERT INTO items(title, image, price, description, place, insertAt)
+                VALUES 
+                ('{title}', '{image_bytes.hex()}', {price}, '{description}', '{place}', {insertAt})
                 """)
     con.commit()
     return '200'
+
+@app.get('/items')
+async def get_items():
+    con.row_factory = sqlite3.Row # 컬럼명도 같이 가져오도록
+    cur = con.cursor() # connection의 현재 위치
+    rows = cur.execute(f"""
+                       SELECT * from items;
+                       """).fetchall()
+    return JSONResponse(jsonable_encoder(dict(row) for row in rows))
 
 
 # ================= chat ====================== #
