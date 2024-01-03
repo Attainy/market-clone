@@ -1,6 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, Form
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
+from typing import Annotated
+import sqlite3
+
+# sqlite3 세팅
+con = sqlite3.connect('carrot.db', check_same_thread=False)
+cur = con.cursor()
 
 class ChatStructure(BaseModel):
     id: str
@@ -14,6 +20,27 @@ chat_history = [{
 }]
 
 app = FastAPI()
+
+# ================ items ======================= #
+
+@app.post('/items')
+async def create_item(image: UploadFile
+                , title: Annotated[str, Form()],
+                price: Annotated[int, Form()],
+                description: Annotated[str, Form()],
+                place: Annotated[str, Form()]):
+    print(image, title, price, description, place)
+    
+    image_bytes = await image.read()
+    cur.execute(f"""
+                INSERT INTO items(title, image, price, description, place)
+                VALUES ('{title}', '{image_bytes.hex()}', {price}, '{description}', '{place}')
+                """)
+    con.commit()
+    return '200'
+
+
+# ================= chat ====================== #
 
 @app.post('/chat')
 def create_chat(chatting:ChatStructure):
@@ -34,4 +61,5 @@ def put_chat(communication:ChatStructure):
     return "실패"
 
 # static 폴더 안에 있는 파일들
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+
