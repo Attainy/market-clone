@@ -16,7 +16,7 @@ const handleSubmit = async (event) => {
     const formData = new FormData(form);
     const sha256Password = sha256(formData.get('password'));
     formData.set("password", sha256Password);
-    console.log(formData.get('password'));
+    // console.log(formData.get('password'));
     // console.log(sha256("hi"));
 
     const div = document.querySelector('#info');
@@ -27,7 +27,6 @@ const handleSubmit = async (event) => {
             method: 'post',
             body: formData
         });
-
         const data = await res.json();
         if (data === "200") {
             alert("회원 가입에 성공했습니다.");
@@ -35,15 +34,10 @@ const handleSubmit = async (event) => {
             // div.style.color = "blue";
             window.location.pathname = "/login.html";
         }
-
     } else {
         div.innerText = "비밀번호가 같지 않습니다.";
         div.style.color = "red";
-    }
-    
-
-
-    
-}
+    }  
+};
 
 form.addEventListener("submit", handleSubmit);

@@ -1,8 +1,10 @@
 from fastapi import FastAPI, UploadFile, Form, Response
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
+from fastapi_login import LoginManager
+from fastapi_login.exceptions import InvalidCredentialsException # 401을 자동으로 생성해서 내려줌
+from pydantic import BaseModel
 from typing import Annotated
 import sqlite3
 
@@ -34,6 +36,53 @@ chat_history = [{
 }]
 
 app = FastAPI()
+
+# ================= signup ====================== #
+
+SECRET = "super-coding" # 노출시키면 안되는 정보
+manager = LoginManager(SECRET, '/login') # /login에서만 토큰 발급
+
+@manager.user_loader()
+def query_user(id):
+    con.row_factory = sqlite3.Row # 컬럼명 같이 가져오기
+    cur = con.cursor() # 커서를 현재 위치로 업데이트
+    user = cur.execute(f"""
+                       SELECT * FROM users WHERE id='{id}'
+                       """).fetchone()
+    print(user)
+    return user
+
+@app.post('/login')
+def login(id:Annotated[str, Form()], 
+           password: Annotated[str, Form()]):
+    user = query_user(id)
+    
+    if not user: # 존재하지 않는 유저
+        raise InvalidCredentialsException
+    elif password != user['password']: # 패스워드가 다를때
+        raise InvalidCredentialsException
+    
+    
+    # Access Token
+    access_token = manager.create_access_token(data={
+        'id': user['id'],
+        'name': user['name'],
+        'email': user['email']
+    })
+    return {'access_token': access_token}
+    # return '200' # 지정하지 않아도 자동으로 200 상태 코드를 내려줌
+    
+@app.post('/signup')
+def signup(id:Annotated[str, Form()], 
+           password: Annotated[str, Form()],
+           name: Annotated[str, Form()],
+           email: Annotated[str, Form()]):
+    cur.execute(f"""
+                INSERT INTO users(id, name, email, password)
+                VALUES ('{id}', '{name}', '{email}', '{password}')
+                """)
+    con.commit() # connection 확정
+    return '200'
 
 # ================ items ======================= #
 
@@ -75,19 +124,6 @@ async def get_image(item_id):
                               """).fetchone()[0] # 하나만 가져올 때 사용하는 문법
     
     return Response(content=bytes.fromhex(image_bytes), media_type = 'image/*') # 16진법 해석해서 content로 response
-
-# ================= signup ====================== #
-@app.post('/signup')
-def signup(id:Annotated[str, Form()], 
-           password: Annotated[str, Form()],
-           name: Annotated[str, Form()],
-           email: Annotated[str, Form()]):
-    cur.execute(f"""
-                INSERT INTO users(id, name, email, password)
-                VALUES ('{id}', '{name}', '{email}', '{password}')
-                """)
-    con.commit() # connection 확정
-    return '200'
 
 
 # ================= chat ====================== #
