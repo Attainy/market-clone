@@ -38,8 +38,8 @@ app = FastAPI()
 # ================ items ======================= #
 
 @app.post('/items')
-async def create_item(image: UploadFile
-                , title: Annotated[str, Form()],
+async def create_item(image: UploadFile,
+                title: Annotated[str, Form()],
                 price: Annotated[int, Form()],
                 description: Annotated[str, Form()],
                 place: Annotated[str, Form()],
@@ -75,6 +75,13 @@ async def get_image(item_id):
                               """).fetchone()[0] # 하나만 가져올 때 사용하는 문법
     
     return Response(content=bytes.fromhex(image_bytes), media_type = 'image/*') # 16진법 해석해서 content로 response
+
+# ================= signup ====================== #
+@app.post('/signup')
+def signup(id:Annotated[str, Form()], password: Annotated[str, Form()]):
+    print(id, password)
+    return '200'
+
 
 # ================= chat ====================== #
 
