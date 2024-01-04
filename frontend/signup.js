@@ -30,8 +30,10 @@ const handleSubmit = async (event) => {
 
         const data = await res.json();
         if (data === "200") {
-            div.innerText = "회원가입에 성공했습니다!";
-            div.style.color = "blue";
+            alert("회원 가입에 성공했습니다.");
+            // div.innerText = "회원가입에 성공했습니다!";
+            // div.style.color = "blue";
+            window.location.pathname = "/login.html";
         }
 
     } else {
