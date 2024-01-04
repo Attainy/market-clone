@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, Form, Response
+from fastapi import FastAPI, UploadFile, Form, Response, Depends
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.staticfiles import StaticFiles
@@ -43,11 +43,17 @@ SECRET = "super-coding" # 노출시키면 안되는 정보
 manager = LoginManager(SECRET, '/login') # /login에서만 토큰 발급
 
 @manager.user_loader()
-def query_user(id):
+# def query_user(id):
+def query_user(data):
+    
+    WHERE_STATEMENTS = f'''id="{data}"'''
+    if type(data) == dict:
+        WHERE_STATEMENTS = f'''id="{data['id']}"'''
+        
     con.row_factory = sqlite3.Row # 컬럼명 같이 가져오기
     cur = con.cursor() # 커서를 현재 위치로 업데이트
     user = cur.execute(f"""
-                       SELECT * FROM users WHERE id='{id}'
+                       SELECT * FROM users WHERE {WHERE_STATEMENTS}
                        """).fetchone()
     print(user)
     return user
@@ -65,10 +71,13 @@ def login(id:Annotated[str, Form()],
     
     # Access Token
     access_token = manager.create_access_token(data={
-        'id': user['id'],
-        'name': user['name'],
-        'email': user['email']
+        'sub': {
+            'id': user['id'],
+            'name': user['name'],
+            'email': user['email']
+        }
     })
+    
     return {'access_token': access_token}
     # return '200' # 지정하지 않아도 자동으로 200 상태 코드를 내려줌
     
@@ -92,7 +101,8 @@ async def create_item(image: UploadFile,
                 price: Annotated[int, Form()],
                 description: Annotated[str, Form()],
                 place: Annotated[str, Form()],
-                insertAt: Annotated[int, Form()]
+                insertAt: Annotated[int, Form()],
+                user=Depends(manager)
                 ):
     print(image, title, price, description, place)
     
@@ -105,8 +115,9 @@ async def create_item(image: UploadFile,
     con.commit()
     return '200'
 
+
 @app.get('/items')
-async def get_items():
+async def get_items(user=Depends(manager)):
     con.row_factory = sqlite3.Row # 컬럼명도 같이 가져오도록
     cur = con.cursor() # connection의 현재 위치
     rows = cur.execute(f"""
