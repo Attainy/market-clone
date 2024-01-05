@@ -10,6 +10,8 @@
   import { user$ } from "./store";
   import { GoogleAuthProvider, getAuth, signInWithCredential } from "firebase/auth";
   import { onMount } from "svelte";
+    import Loading from "./pages/Loading.svelte";
+    import MyPage from "./pages/MyPage.svelte";
 
   // const provider = new GoogleAuthProvider();
   // provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
@@ -36,6 +38,7 @@
     '/signup': Signup,
     '/login': Login,
     '/Write': Write,
+    '/my': MyPage,
     '*': NotFound // 그 외 모든 페이지 (잘못된 경로)
   }
 
@@ -50,7 +53,7 @@
 {/if} -->
 
 {#if isLoading}
-  <div>로딩중입니다.</div>
+  <Loading />
 {:else if !$user$}
   <Login />
 {:else}

@@ -1,7 +1,7 @@
 <script>
     import { onMount } from "svelte";
-    import Footer from "../components/Footer.svelte";
     import { getDatabase, ref, onValue } from "firebase/database";
+    import Nav from "../components/Nav.svelte";
 
     // 현재 시간 간단히 표시할 수 있음
     let hour = new Date().getHours();
@@ -115,7 +115,7 @@
     </form>
 </main>
 
-<Footer location="home" />
+<Nav location="home" />
 
 <div class="media-info-msg">화면 사이즈를 줄여주세요.</div>
 
