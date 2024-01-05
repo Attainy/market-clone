@@ -1,7 +1,42 @@
 <script>
+    import { onMount } from "svelte";
+    import Footer from "../components/Footer.svelte";
+    import { getDatabase, ref, onValue } from "firebase/database";
+
     // 현재 시간 간단히 표시할 수 있음
     let hour = new Date().getHours();
     let min = new Date().getMinutes();
+
+    // 반응형 변수 선언. 자동으로 업데이트 됨
+    $: items = [];
+
+    const calcTime = (timestamp) => {
+        // const curTime = new Date().getTime(); // 한국시간 (UTC + 9)
+        const curTime = new Date().getTime() - 9 * 60 * 60 * 1000; // 세계시간으로 맞춰주기
+        const time = new Date(curTime - timestamp);
+        const hour = time.getHours();
+        const minutes = time.getMinutes();
+        const second = time.getSeconds();
+
+        if (hour > 0) return `${hour}시간 전`;
+        else if (minutes > 0) return `${minutes}분 전`;
+        else if (second >= 0) return `${second}초 전`;
+        else return '방금 전';
+    };
+
+    const db = getDatabase();
+    const itemsRef = ref(db, "items/");
+
+    // 화면이 렌더링될 때마다 onValue 호출될 수 있도록 하는 게 onMount
+    onMount(() => {
+        onValue(itemsRef, (snapshot) => {
+        const data = snapshot.val();
+        // 최신 업로드글이 위로
+        items = Object.values(data).reverse(); // items 변수 업데이트
+        // console.log(JSON.stringify(data, null, 2));
+        // console.log(Object.values(data));
+        });
+    });
 </script>
 
 <header>
@@ -32,6 +67,20 @@
 </header>
 
 <main class="item-tap">
+    {#each items as item}
+        <div class="item-list">
+            <div class="item-list__img">
+                <img src={item.imgUrl} alt={item.title}/>
+            </div>
+            <div class="item-list__info">
+                <div class="item-list__info-title">{item.title}</div>
+                <div class="item-list__info-meta">{item.place} {calcTime(item.insertAt)}</div>
+                <div class="item-list__info-price">{item.price}</div>
+                <div class="item-list__info-description">{item.description}</div>
+            </div>
+        </div>
+    {/each}
+
     <a class="write-btn" href="#/write">+글쓰기</a>
 </main>
 
@@ -66,41 +115,8 @@
     </form>
 </main>
 
+<Footer location="home" />
 
-<footer>
-    <div class="footer-block">
-        <a class="footer-icons" href="./">
-            <div class="footer-icons__img">
-                <img src="./assets/home.svg" alt="home">
-            </div>
-            <div class="footer-icons__desc">홈</div>
-        </a>
-        <div class="footer-icons">
-            <div class="footer-icons__img">
-                <img src="./assets/document.svg" alt="document">
-            </div>
-            <div class="footer-icons__desc">동네생활</div>
-        </div>
-        <div class="footer-icons">
-            <div class="footer-icons__img">
-                <img src="./assets/location.svg" alt="location">
-            </div>
-            <div class="footer-icons__desc">내 근처</div>
-        </div>
-        <div class="footer-icons chat">
-            <div class="footer-icons__img">
-                <img src="./assets/chat.svg" alt="chat">
-            </div>
-            <div class="footer-icons__desc">채팅</div>
-        </div>
-        <div class="footer-icons">
-            <div class="footer-icons__img">
-                <img src="./assets/user.svg" alt="user">
-            </div>
-            <div class="footer-icons__desc">나의 당근</div>
-        </div>
-    </div>
-</footer>
 <div class="media-info-msg">화면 사이즈를 줄여주세요.</div>
 
 <style>
