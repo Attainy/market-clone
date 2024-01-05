@@ -19,9 +19,3 @@
 </script>
 
 <Router routes={routes} />
-
-<style>
-  div {
-    color: red;
-  }
-</style>
