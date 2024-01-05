@@ -15,13 +15,13 @@ import { getStorage } from "firebase/storage";
 // };
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD_uSgQj1xJsJAMQOj_fnkFveBP1UVvFUQ",
-  authDomain: "carrot-market-f0cd0.firebaseapp.com",
-  databaseURL: "https://carrot-market-f0cd0-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "carrot-market-f0cd0",
-  storageBucket: "carrot-market-f0cd0.appspot.com",
-  messagingSenderId: "6949374253",
-  appId: "1:6949374253:web:85658a9f1b3e215099aba4"
+  apiKey: import.meta.env.VITE_APP_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  databaseURL: import.meta.env.VITE_DB_URL,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGE_ID,
+  appId: import.meta.env.VITE_APP_ID,
 };
 
 // Initialize Firebase
